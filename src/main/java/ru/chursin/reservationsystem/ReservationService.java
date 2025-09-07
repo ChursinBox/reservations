@@ -35,7 +35,7 @@ public class ReservationService {
             throw new IllegalArgumentException("Id should be not empty");
         }
 
-        if (reservationToCreate.reservationStatus() != null) {
+        if (reservationToCreate.status() != null) {
             throw new IllegalArgumentException("Status should be not empty");
         }
 
@@ -49,5 +49,84 @@ public class ReservationService {
         );
         reservationMap.put(newReservation.id(), newReservation);
         return newReservation;
+    }
+
+    public Reservation updateReservation(
+            Long id, Reservation reservationToUpdate
+    ) {
+        if(!reservationMap.containsKey(id)) {
+            throw new NoSuchElementException("Not found reservation by id= " + id);
+        }
+
+        var reservation = reservationMap.get(id);
+
+        if (reservation.status() != ReservationStatus.PENDING) {
+            throw new IllegalArgumentException("Cannot modify reservation status = " + reservation.status());
+        }
+        var updatedReservation = new Reservation(
+                reservation.id(),
+                reservationToUpdate.userId(),
+                reservationToUpdate.roomId(),
+                reservationToUpdate.startDate(),
+                reservationToUpdate.endDate(),
+                ReservationStatus.PENDING
+        );
+        reservationMap.put(reservation.id(), updatedReservation);
+        return updatedReservation;
+    }
+
+    public void deleteReservation(Long id) {
+        if(!reservationMap.containsKey(id)) {
+            throw new NoSuchElementException("Not found reservation by id= " + id);
+        }
+            reservationMap.remove(id);
+    }
+
+    public Reservation approveReservation(Long id) {
+        if(!reservationMap.containsKey(id)) {
+            throw new NoSuchElementException("Not found reservation by id= " + id);
+        }
+
+        var reservation = reservationMap.get(id);
+        if (reservation.status() != ReservationStatus.PENDING) {
+            throw new IllegalArgumentException("Cannot approve reservation status = " + reservation.status());
+        }
+
+        var isConflict = isReservationConflict(reservation);
+        if (isConflict) {
+            throw new IllegalArgumentException("Cannot approve reservation because of conflict");
+        }
+
+        var approveReservation = new Reservation(
+                reservation.id(),
+                reservation.userId(),
+                reservation.roomId(),
+                reservation.startDate(),
+                reservation.endDate(),
+                ReservationStatus.APPROVED
+        );
+        reservationMap.put(reservation.id(), approveReservation);
+        return approveReservation;
+    }
+
+    private boolean isReservationConflict(
+            Reservation reservation
+    ) {
+        for (Reservation existingReservation: reservationMap.values()) {
+            if (reservation.id().equals(existingReservation.id())) {
+                continue;
+            }
+            if (!reservation.roomId().equals(existingReservation.roomId())) {
+                continue;
+            }
+            if (!existingReservation.status().equals(ReservationStatus.APPROVED)) {
+                continue;
+            }
+            if (reservation.startDate().isBefore(existingReservation.endDate())
+                && existingReservation.startDate().isBefore(reservation.endDate())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
