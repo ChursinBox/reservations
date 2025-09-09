@@ -1,4 +1,4 @@
-package ru.chursin.reservationsystem;
+package ru.chursin.reservationsystem.reservations;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

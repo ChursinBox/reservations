@@ -1,4 +1,4 @@
-package ru.chursin.reservationsystem;
+package ru.chursin.reservationsystem.reservations;
 
 public enum ReservationStatus {
     PENDING,
