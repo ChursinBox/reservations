@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReservationMapper {
 
-    public Reservation toDomainReservation(
+    public Reservation toDomain(
             ReservationEntity reservation
     ) {
         return new Reservation(
@@ -18,7 +18,7 @@ public class ReservationMapper {
         );
     }
 
-    public ReservationEntity toEntityReservation(
+    public ReservationEntity toEntity(
             Reservation reservation
     ) {
         return new ReservationEntity(
