@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -38,9 +39,20 @@ public class ReservationController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Reservation>> getAllReservations() {
+    public ResponseEntity<List<Reservation>> getAllReservations(
+            @RequestParam(name = "roomId", required = false) Long roomId,
+            @RequestParam(name = "userId", required = false)Long userId,
+            @RequestParam(name = "pageSize", required = false)Integer pageSize,
+            @RequestParam(name = "pageNumber", required = false)Integer pageNumber
+    ) {
         log.info("Called getAllReservations");
-        return ResponseEntity.ok(reservationService.findAllReservations());
+        var filter = new ReservationSearchFilter(
+                roomId,
+                userId,
+                pageSize,
+                pageNumber
+        );
+        return ResponseEntity.ok(reservationService.searchAllByFilter(filter));
     }
 
     @PostMapping
